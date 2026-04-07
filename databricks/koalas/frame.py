@@ -4972,17 +4972,14 @@ defaultdict(<class 'list'>, {'col..., 'col...})]
         from databricks.koalas.indexes import MultiIndex
         from databricks.koalas.series import IndexOpsMixin
 
-        for k, v in kwargs.items():
-            is_invalid_assignee = (
-                not (isinstance(v, (IndexOpsMixin, spark.Column)) or callable(v) or is_scalar(v))
-            ) or isinstance(v, MultiIndex)
-            if is_invalid_assignee:
+       for k, v in kwargs.items():
+            if not (isinstance(v, (Series, spark.Column)) or callable(v) or is_scalar(v)):
                 raise TypeError(
                     "Column assignment doesn't support type " "{0}".format(type(v).__name__)
                 )
             if callable(v):
                 kwargs[k] = v(self)
-
+                
         pairs = {
             (k if is_name_like_tuple(k) else (k,)): (
                 (v.spark.column, v.dtype)
