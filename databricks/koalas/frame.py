@@ -11721,6 +11721,14 @@ defaultdict(<class 'list'>, {'col..., 'col...})]
 
     def __setitem__(self, key, value):
         from databricks.koalas.series import Series
+    
+        if isinstance(value, Index) or (
+        is_list_like(value) and not isinstance(value, (DataFrame, Series))
+    ):
+        if isinstance(key, list) and not isinstance(value, pd.DataFrame):
+            value = DataFrame(pd.DataFrame(value, columns=key))
+        else:
+            value = Series(value)
 
         if isinstance(value, (DataFrame, Series)) and not same_anchor(value, self):
             # Different Series or DataFrames
