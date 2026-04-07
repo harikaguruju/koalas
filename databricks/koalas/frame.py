@@ -4974,7 +4974,12 @@ defaultdict(<class 'list'>, {'col..., 'col...})]
 
         for k, v in kwargs.items():
             is_invalid_assignee = (
-                not (isinstance(v, (IndexOpsMixin, spark.Column)) or callable(v) or is_scalar(v))
+                not (
+                    isinstance(v, (Series, spark.Column, Index))
+                    or callable(v)
+                    or pandas_api.is_list_like(v)
+                    or is_scalar(v)
+                )
             ) or isinstance(v, MultiIndex)
             if is_invalid_assignee:
                 raise TypeError(
@@ -4982,7 +4987,7 @@ defaultdict(<class 'list'>, {'col..., 'col...})]
                 )
             if callable(v):
                 kwargs[k] = v(self)
-
+                
         pairs = {
             (k if is_name_like_tuple(k) else (k,)): (
                 (v.spark.column, v.dtype)
